@@ -141,7 +141,7 @@ class ComponentSchema(object):
 
         r += '**Properties**\n\n'
         r += '|Field|Type|Required|Description|\n'
-        r += '|---|---|---|\n'
+        r += '|---|---|---|---|\n'
 
         if self.type == 'object':
             for field in self.fields:
@@ -316,19 +316,19 @@ class Operation(object):
         if self.desc:
             r += '{desc}\n\n'.format(desc=self.desc)
         if self.parameters:
-            r += '##### Parameters\n\n'
+            r += '**Parameters**\n\n'
             r += '|Field|In|Type|Required|Description|\n'
             r += '|---|---|---|---|---|\n'
             for parameter in self.parameters:
                 r += parameter.format()
 
         if self.request_body:
-            r += '##### Request Body\n\n'
+            r += '**Request Body**\n\n'
             r += self.request_body.format()
             r += self.request_body.example()
 
         if self.responses:
-            r += '##### Responses\n\n'
+            r += '**Responses**\n\n'
             if self.responses:
                 r += '|Status|Description|\n'
                 r += '|---|---|\n'
@@ -338,11 +338,11 @@ class Operation(object):
                         desc=response.desc
                     )
 
-            r += '##### Response Schema\n\n'
+            r += '**Response Schema**\n\n'
             for response in self.responses:
                 r += response.format()
 
-            r += '##### Response Example\n\n'
+            r += '**Response Example**\n\n'
             for response in self.responses:
                 r += response.example()
 
