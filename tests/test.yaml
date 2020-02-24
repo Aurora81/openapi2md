@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  title: test
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /pets:
+    get:
+      summary: get pets
+      tags:
+        - pets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: pet name
+      operationId: get-pets
+      description: get all pets
+    post:
+      summary: post pet
+      tags:
+        - pets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/t2'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/t2'
+      operationId: post-pets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+    put:
+      summary: update pet
+      tags:
+        - pets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+      operationId: put-pets
+components:
+  schemas:
+    test:
+      title: test
+      type: object
+      properties:
+        id:
+          type: string
+        object1:
+          type: object
+          properties:
+            name:
+              type: string
+        array1:
+          type: array
+          items:
+            type: string
+        array2:
+          type: array
+          items:
+            type: object
+            properties:
+              array2_o1:
+                type: string
+        t1:
+          $ref: '#/components/schemas/t1'
+    t1:
+      title: t1
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    t2:
+      title: t2
+      type: string
+      description: hehe
+  securitySchemes: {}

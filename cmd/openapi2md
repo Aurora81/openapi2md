@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import argparse
+
+from openapi2md.converter import Converter
+
+
+def main(opts):
+    converter = Converter(opts.input_file, opts.output_file, opts.locale)
+    converter.convert()
+
+
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-i', '--input-file',
+                    help='The OpenAPI 3 YAML filepath')
+    ap.add_argument('-o', '--output-file',
+                    help='The output filepath of the Markdown file')
+    ap.add_argument('--locale', default='en',
+                    help='Locale to use when generating the Markdown file')
+    opts = ap.parse_args()
+    main(opts)
