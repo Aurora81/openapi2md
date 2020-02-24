@@ -31,3 +31,4 @@ $ openapi2md -i tests/test.yaml -o tests/test.md
 
 ### Result
 
+<img src="assets/image-20200224125605426.png" alt="image-20200224125605426" style="zoom:40%;" />
