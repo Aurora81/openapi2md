@@ -38,20 +38,22 @@ class Field(object):
         super(Field, self).__init__()
         self.name = name
 
-    def parse(self, seg, data):
+    def parse(self, seg, data, required=False):
         self.type = seg.get('type', '')
         self.desc = seg.get('description', '')
-        self.required = seg.get('required', False)
+        self.required = required
+        required_fields = seg.get('required', [])
         if self.type == 'object':
             self.fields = []
             for name, value in OrderedDict(seg.get('properties', {})).items():
+                required = True if name in required_fields else False
                 field = Field(name)
-                field.parse(value, data)
+                field.parse(value, data, required)
                 self.fields.append(field)
         elif self.type == 'array':
             value = seg.get('items')
             field = Field('')
-            field.parse(value, data)
+            field.parse(value, data, False)
             self.field = field
         elif '$ref' in seg:
             value = data
@@ -121,18 +123,10 @@ class ComponentSchema(object):
         self.type = seg.get('type', '')
         self.desc = seg.get('description', '')
         self.tags = seg.get('x-tags', '')
-        self.required = seg.get('required', False)
-        if self.type == 'object':
-            self.fields = []
-            for name, value in OrderedDict(seg.get('properties', {})).items():
-                field = Field(name)
-                field.parse(value, data)
-                self.fields.append(field)
-        elif self.type == 'array':
-            value = seg.get('items')
-            field = Field('')
-            field.parse(value, data)
-            self.field = field
+
+        field = Field('')
+        field.parse(seg, data)
+        self.field = field
 
     def format(self, level=0):
         r = '### {name}\n\n'.format(name=self.name)
@@ -142,45 +136,16 @@ class ComponentSchema(object):
         r += '**Properties**\n\n'
         r += '|Field|Type|Required|Description|\n'
         r += '|---|---|---|---|\n'
+        r += self.field.format(level)
 
-        if self.type == 'object':
-            for field in self.fields:
-                r += field.format(level)
-        elif self.type == 'array':
-            field = self.field
-            r += '|{field}|[{type}]|{required}|{description}|\n'.format(
-                field=self.name,
-                type=field.type,
-                required=self.required,
-                description=self.desc
-            )
-            r += field.format(level)
-        else:
-            r += '|{field}|{type}|{required}|{description}|\n'.format(
-                field=self.name,
-                type=self.type,
-                required=self.required,
-                description=self.desc
-            )
-
-        example = self.example()
         r += '**Example**\n\n'
         r += '```json\n'
-        r += json.dumps(example, indent=4) + '\n'
+        r += json.dumps(self.field.example(), indent=4) + '\n'
         r += '```\n'
         return r
 
     def example(self):
-        if self.type == 'object':
-            r = {}
-            for field in self.fields:
-                r[field.name] = field.example()
-        elif self.type == 'array':
-            field = self.field
-            r = [field.example(), field.example()]
-        else:
-            r = {}
-
+        r = self.field.example()
         return r
 
 
