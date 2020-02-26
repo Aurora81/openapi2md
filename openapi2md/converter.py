@@ -42,6 +42,7 @@ class Field(object):
         self.type = seg.get('type', '')
         self.desc = seg.get('description', '')
         self.required = required
+        self.example_value = seg.get('example', '')
         required_fields = seg.get('required', [])
         if self.type == 'object':
             self.fields = []
@@ -108,7 +109,15 @@ class Field(object):
             field = self.field
             r = [field.example()]
         else:
-            r = self.type
+            if self.example_value:
+                r = self.example_value
+            else:
+                if self.type == "integer" or self.type == "number":
+                    r = 0
+                elif self.type == "boolean":
+                    r = False
+                else:
+                    r = self.type
 
         return r
 
