@@ -2,10 +2,8 @@
 
 from __future__ import unicode_literals
 from codecs import open
-from collections import OrderedDict
 import json
 import yaml
-import yamlordereddictloader
 
 
 class Converter(object):
@@ -17,7 +15,7 @@ class Converter(object):
 
     def convert(self):
         with open(self.input_filepath, 'r', encoding='utf-8') as f:
-            content = yaml.load(f, Loader=yamlordereddictloader.Loader)
+            content = yaml.load(f)
 
         self.ensure_openapi_3(content)
 
@@ -46,7 +44,8 @@ class Field(object):
         required_fields = seg.get('required', [])
         if self.type == 'object':
             self.fields = []
-            for name, value in OrderedDict(seg.get('properties', {})).items():
+            sorted_items = sorted(seg.get('properties', {}).items(), key=lambda t: t[0])
+            for name, value in sorted_items:
                 required = True if name in required_fields else False
                 field = Field(name)
                 field.parse(value, data, required)
@@ -275,7 +274,8 @@ class Operation(object):
             parameter.parse(value, data)
             self.parameters.append(parameter)
 
-        for name, value in OrderedDict(seg.get('responses', {})).items():
+        sorted_items = sorted(seg.get('responses', {}).items(), key=lambda t: t[0])
+        for name, value in sorted_items:
             response = Response(name)
             response.parse(value, data)
             self.responses.append(response)
@@ -330,7 +330,8 @@ class Path(object):
         self.parameters = []
 
     def parse(self, seg, data):
-        for name, value in OrderedDict(seg).items():
+        sorted_items = sorted(seg.items(), key=lambda t: t[0])
+        for name, value in sorted_items:
             if name == 'parameters':
                 for v in value:
                     parameter = Parameter()
@@ -353,7 +354,8 @@ class Component(object):
         self.schemas = []
 
     def parse(self, seg, data):
-        for name, value in OrderedDict(seg.get('schemas', {})).items():
+        sorted_items = sorted(seg.get('schemas', {}).items(), key=lambda t: t[0])
+        for name, value in sorted_items:
             cs = ComponentSchema(name)
             cs.parse(value, data)
             self.schemas.append(cs)
@@ -404,7 +406,8 @@ class API(object):
     def parse(self, data):
         self.info = Info()
         self.info.parse(data.get('info', {}), data)
-        for name, value in OrderedDict(data.get('paths', {})).items():
+        sorted_items = sorted(data.get('paths', {}).items(), key=lambda t: t[0])
+        for name, value in sorted_items:
             path = Path(name)
             path.parse(value, data)
             self.paths.append(path)
