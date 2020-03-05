@@ -35,6 +35,7 @@ class Field(object):
     def __init__(self, name):
         super(Field, self).__init__()
         self.name = name
+        self.examples = {}
 
     def parse(self, seg, data, required=False):
         self.type = seg.get('type', '')
@@ -55,11 +56,8 @@ class Field(object):
             field = Field('')
             field.parse(value, data, False)
             self.field = field
-        elif '$ref' in seg:
-            value = data
-            for name in seg['$ref'].strip('#/').split('/'):
-                value = value.get(name, {})
-            self.parse(value, data)
+
+        self.examples = seg.get('x-examples', {})
 
     def format(self, level):
         r = ''
@@ -100,6 +98,10 @@ class Field(object):
         return r
 
     def example(self):
+        if self.examples:
+            for k, v in self.examples.items():
+                return v
+
         if self.type == 'object':
             r = {}
             for field in self.fields:
@@ -194,6 +196,7 @@ class RequestBody(object):
             field = Field('')
             field.parse(schema, data)
             self.field = field
+        self.examples = content.get('application/json', {}).get('examples', {})
 
     def format(self):
         r = ''
@@ -208,12 +211,17 @@ class RequestBody(object):
 
     def example(self):
         r = ''
-        if not self.field:
+        if not self.field and not self.examples:
             return r
 
         r += 'Body Example\n\n'
         r += '```json\n'
-        r += json.dumps(self.field.example(), indent=4) + '\n'
+        if self.examples:
+            for k, v in self.examples.items():
+                r += json.dumps(v.get('value', {}), indent=4) + '\n'
+                break
+        else:
+            r += json.dumps(self.field.example(), indent=4) + '\n'
         r += '```\n'
         return r
 
@@ -223,6 +231,7 @@ class Response(object):
         self.name = name
         self.fmt = []
         self.field = None
+        self.examples = {}
 
     def parse(self, seg, data):
         self.desc = seg.get('description', '')
@@ -233,6 +242,7 @@ class Response(object):
             field = Field('')
             field.parse(schema, data)
             self.field = field
+        self.examples = content.get('application/json', {}).get('examples', {})
 
     def format(self):
         r = ''
@@ -247,12 +257,17 @@ class Response(object):
 
     def example(self):
         r = ''
-        if not self.field:
+        if not self.field and not self.examples:
             return r
 
         r += '{name} Response\n\n'.format(name=self.name)
         r += '```json\n'
-        r += json.dumps(self.field.example(), indent=4) + '\n'
+        if self.examples:
+            for k, v in self.examples.items():
+                r += json.dumps(v.get('value', {}), indent=4) + '\n'
+                break
+        else:
+            r += json.dumps(self.field.example(), indent=4) + '\n'
         r += '```\n'
         return r
 
