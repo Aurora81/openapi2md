@@ -64,7 +64,7 @@ class Field(object):
         if self.type == 'object':
             if self.name:
                 r += '|{level}{field}|{type}|{required}|{description}|\n'.format(
-                    level='»' * level,
+                    level='+' * level,
                     field=self.name,
                     type=self.type,
                     required=self.required,
@@ -76,7 +76,7 @@ class Field(object):
         elif self.type == 'array':
             field = self.field
             r += '|{level}{field}|[{type}]|{required}|{description}|\n'.format(
-                level='»' * level,
+                level='+' * level,
                 field=self.name,
                 type=field.type,
                 required=self.required,
@@ -88,7 +88,7 @@ class Field(object):
                 return r
 
             r += '|{level}{field}|{type}|{required}|{description}|\n'.format(
-                level='»' * level,
+                level='+' * level,
                 field=self.name,
                 type=self.type,
                 required=self.required,
