@@ -147,6 +147,7 @@ class ComponentSchema(object):
         r += '|Field|Type|Required|Description|\n'
         r += '|---|---|---|---|\n'
         r += self.field.format(level)
+        r += '\n'
 
         r += '**Example**\n\n'
         r += '```json\n'
@@ -207,6 +208,7 @@ class RequestBody(object):
         r += '|Field|Type|Required|Description|\n'
         r += '|---|---|---|---|\n'
         r += self.field.format(level=0)
+        r += '\n'
         return r
 
     def example(self):
@@ -253,6 +255,7 @@ class Response(object):
         r += '|Field|Type|Required|Description|\n'
         r += '|---|---|---|---|\n'
         r += self.field.format(level=0)
+        r += '\n'
         return r
 
     def example(self):
@@ -310,6 +313,7 @@ class Operation(object):
             r += '|---|---|---|---|---|\n'
             for parameter in self.parameters:
                 r += parameter.format()
+            r += '\n'
 
         if self.request_body:
             r += '**Request Body**\n\n'
@@ -326,6 +330,7 @@ class Operation(object):
                         status=response.name,
                         desc=response.desc
                     )
+                r += '\n'
 
             r += '**Response Schema**\n\n'
             for response in self.responses:
