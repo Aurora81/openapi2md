@@ -187,11 +187,17 @@ class RequestBody(object):
         self.name = name
         self.fmt = []
         self.field = None
+        self.content_type = 'application/json'
 
     def parse(self, seg, data):
         self.desc = seg.get('description', '')
         content = seg.get('content', {})
         schema = content.get('application/json', {}).get('schema', {})
+        if not schema:
+            schema = content.get('multipart/form-data', {}).get('schema', {})
+            if schema:
+                self.content_type = 'multipart/form-data'
+
         if schema:
             self.fmt.append('application/json')
             field = Field('')
@@ -204,6 +210,7 @@ class RequestBody(object):
         if not self.field:
             return r
 
+        r += 'Body Type: ' + self.content_type + '\n\n'
         r += 'Body Parameter\n\n'
         r += '|Field|Type|Required|Description|\n'
         r += '|---|---|---|---|\n'
@@ -234,11 +241,17 @@ class Response(object):
         self.fmt = []
         self.field = None
         self.examples = {}
+        self.content_type = 'application/json'
 
     def parse(self, seg, data):
         self.desc = seg.get('description', '')
         content = seg.get('content', {})
         schema = content.get('application/json', {}).get('schema', {})
+        if not schema:
+            schema = content.get('multipart/form-data', {}).get('schema', {})
+            if schema:
+                self.content_type = 'multipart/form-data'
+
         if schema:
             self.fmt.append('application/json')
             field = Field('')
@@ -252,6 +265,7 @@ class Response(object):
             return r
 
         r += 'Status Code {name}\n\n'.format(name=self.name)
+        r += 'Body Type: ' + self.content_type + '\n\n'
         r += '|Field|Type|Required|Description|\n'
         r += '|---|---|---|---|\n'
         r += self.field.format(level=0)
